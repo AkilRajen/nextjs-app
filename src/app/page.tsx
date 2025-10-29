@@ -1,6 +1,6 @@
 import Image from "next/image";
-// import AuthButton from "@/components/AuthButton";
-import AuthButton from "@/components/AuthButton.mock"; // Use mock for testing UI
+import AuthButton from "@/components/AuthButton";
+// import AuthButton from "@/components/AuthButton.mock"; // Use mock for testing UI
 
 export default function Home() {
   return (
