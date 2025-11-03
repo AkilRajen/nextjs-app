@@ -41,14 +41,14 @@ export default function UserProfile() {
         const clientId = process.env.NEXT_PUBLIC_USER_POOL_CLIENT_ID;
         const redirectUri = process.env.NEXT_PUBLIC_REDIRECT_SIGN_IN;
 
-        
+
         if (!oauthDomain || !clientId || !redirectUri) {
             console.error('Missing OAuth configuration');
             return;
         }
 
         const oauthUrl = `https://${oauthDomain}/login?client_id=${clientId}&response_type=code&scope=openid+email&redirect_uri=${redirectUri}`;
-        
+
         // Also log to Next.js server terminal
         try {
             await fetch('/api/debug-auth', {
@@ -65,7 +65,7 @@ export default function UserProfile() {
             console.error('Failed to log to server:', error);
         }
 
-        window.location.href = oauthUrl;
+        //window.location.href = oauthUrl;
     };
 
     const handleSignOut = async () => {
@@ -93,20 +93,48 @@ export default function UserProfile() {
 
     // Show login button if not authenticated
     if (!user) {
+        const oauthDomain = process.env.NEXT_PUBLIC_OAUTH_DOMAIN;
+        const clientId = process.env.NEXT_PUBLIC_USER_POOL_CLIENT_ID;
+        const redirectUri = process.env.NEXT_PUBLIC_REDIRECT_SIGN_IN;
+
+        const oauthUrl = oauthDomain && clientId && redirectUri
+            ? `https://${oauthDomain}/login?client_id=${clientId}&response_type=code&scope=openid+email&redirect_uri=${redirectUri}`
+            : 'Configuration missing';
+
         return (
-            <div className="flex space-x-2">
+            <div className="flex flex-col space-y-2 max-w-md">
                 <button
                     onClick={handleSignIn}
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
                 >
                     Sign In
                 </button>
+
+                {/* URL Display */}
+                <div className="text-xs bg-gray-100 p-2 rounded border">
+                    <div className="font-semibold text-gray-700 mb-1">OAuth URL:</div>
+                    <div className="text-gray-600 break-all font-mono">
+                        {oauthUrl}
+                    </div>
+                </div>
+
+                {/* Environment Variables Display */}
+                <div className="text-xs bg-yellow-50 p-2 rounded border">
+                    <div className="font-semibold text-gray-700 mb-1">Config:</div>
+                    <div className="text-gray-600 space-y-1">
+                        <div><span className="font-medium">Domain:</span> {oauthDomain || 'Missing'}</div>
+                        <div><span className="font-medium">Client ID:</span> {clientId || 'Missing'}</div>
+                        <div><span className="font-medium">Redirect:</span> {redirectUri || 'Missing'}</div>
+                    </div>
+                </div>
+
                 <button
                     onClick={async () => {
                         console.log('=== DEBUG INFO (Browser) ===');
-                        console.log('Domain:', process.env.NEXT_PUBLIC_OAUTH_DOMAIN);
-                        console.log('Client ID:', process.env.NEXT_PUBLIC_USER_POOL_CLIENT_ID);
-                        console.log('Redirect:', process.env.NEXT_PUBLIC_REDIRECT_SIGN_IN);
+                        console.log('Domain:', oauthDomain);
+                        console.log('Client ID:', clientId);
+                        console.log('Redirect:', redirectUri);
+                        console.log('OAuth URL:', oauthUrl);
 
                         // Also log to Next.js terminal
                         try {
@@ -114,10 +142,10 @@ export default function UserProfile() {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({
-                                    oauthDomain: process.env.NEXT_PUBLIC_OAUTH_DOMAIN,
-                                    clientId: process.env.NEXT_PUBLIC_USER_POOL_CLIENT_ID,
-                                    redirectUri: process.env.NEXT_PUBLIC_REDIRECT_SIGN_IN,
-                                    oauthUrl: 'Debug button clicked'
+                                    oauthDomain,
+                                    clientId,
+                                    redirectUri,
+                                    oauthUrl
                                 })
                             });
                             alert('Check both browser console AND Next.js terminal!');
@@ -126,9 +154,9 @@ export default function UserProfile() {
                             alert('Check browser console (server logging failed)');
                         }
                     }}
-                    className="px-2 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm"
+                    className="px-2 py-1 bg-gray-500 text-white rounded text-xs hover:bg-gray-600 transition-colors"
                 >
-                    🔍
+                    🔍 Debug & Log
                 </button>
             </div>
         );
