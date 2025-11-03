@@ -34,20 +34,37 @@ export default function UserProfile() {
         }
     };
 
-    const handleSignIn = () => {
+    const handleSignIn = async () => {
         if (typeof window === 'undefined') return;
 
         const oauthDomain = process.env.NEXT_PUBLIC_OAUTH_DOMAIN;
         const clientId = process.env.NEXT_PUBLIC_USER_POOL_CLIENT_ID;
         const redirectUri = process.env.NEXT_PUBLIC_REDIRECT_SIGN_IN;
 
+        
         if (!oauthDomain || !clientId || !redirectUri) {
             console.error('Missing OAuth configuration');
             return;
         }
 
-        const oauthUrl = `https://${oauthDomain}/login?client_id=${clientId}&response_type=code&scope=openid+email+profile&redirect_uri=${encodeURIComponent(redirectUri)}`;
-        console.log(`Auth URL: ${oauthUrl}`);
+        const oauthUrl = `https://${oauthDomain}/login?client_id=${clientId}&response_type=code&scope=openid+email&redirect_uri=${redirectUri}`;
+        
+        // Also log to Next.js server terminal
+        try {
+            await fetch('/api/debug-auth', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    oauthDomain,
+                    clientId,
+                    redirectUri,
+                    oauthUrl
+                })
+            });
+        } catch (error) {
+            console.error('Failed to log to server:', error);
+        }
+
         window.location.href = oauthUrl;
     };
 
@@ -77,12 +94,43 @@ export default function UserProfile() {
     // Show login button if not authenticated
     if (!user) {
         return (
-            <button
-                onClick={handleSignIn}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-            >
-                Sign In
-            </button>
+            <div className="flex space-x-2">
+                <button
+                    onClick={handleSignIn}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                >
+                    Sign In
+                </button>
+                <button
+                    onClick={async () => {
+                        console.log('=== DEBUG INFO (Browser) ===');
+                        console.log('Domain:', process.env.NEXT_PUBLIC_OAUTH_DOMAIN);
+                        console.log('Client ID:', process.env.NEXT_PUBLIC_USER_POOL_CLIENT_ID);
+                        console.log('Redirect:', process.env.NEXT_PUBLIC_REDIRECT_SIGN_IN);
+
+                        // Also log to Next.js terminal
+                        try {
+                            await fetch('/api/debug-auth', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    oauthDomain: process.env.NEXT_PUBLIC_OAUTH_DOMAIN,
+                                    clientId: process.env.NEXT_PUBLIC_USER_POOL_CLIENT_ID,
+                                    redirectUri: process.env.NEXT_PUBLIC_REDIRECT_SIGN_IN,
+                                    oauthUrl: 'Debug button clicked'
+                                })
+                            });
+                            alert('Check both browser console AND Next.js terminal!');
+                        } catch (error) {
+                            console.error('Failed to log to server:', error);
+                            alert('Check browser console (server logging failed)');
+                        }
+                    }}
+                    className="px-2 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm"
+                >
+                    🔍
+                </button>
+            </div>
         );
     }
 
