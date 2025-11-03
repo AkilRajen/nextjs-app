@@ -1,25 +1,27 @@
 import { Amplify } from 'aws-amplify';
 
-const amplifyConfig = {
-    Auth: {
-        Cognito: {
-            userPoolId: process.env.NEXT_PUBLIC_USER_POOL_ID || '',
-            userPoolClientId: process.env.NEXT_PUBLIC_USER_POOL_CLIENT_ID || '',
-            loginWith: {
-                oauth: {
-                    domain: process.env.NEXT_PUBLIC_OAUTH_DOMAIN || '',
-                    scopes: ['openid', 'email', 'profile'],
-                    redirectSignIn: [process.env.NEXT_PUBLIC_REDIRECT_SIGN_IN || 'http://localhost:3000/'],
-                    redirectSignOut: [process.env.NEXT_PUBLIC_REDIRECT_SIGN_OUT || 'http://localhost:3000/'],
-                    responseType: 'code' as const,
+export const configureAmplify = () => {
+    if (typeof window === 'undefined') return; // Only run on client side
+    
+    const amplifyConfig = {
+        Auth: {
+            Cognito: {
+                userPoolId: process.env.NEXT_PUBLIC_USER_POOL_ID || '',
+                userPoolClientId: process.env.NEXT_PUBLIC_USER_POOL_CLIENT_ID || '',
+                loginWith: {
+                    oauth: {
+                        domain: process.env.NEXT_PUBLIC_OAUTH_DOMAIN || '',
+                        scopes: ['openid', 'email', 'profile'],
+                        redirectSignIn: [process.env.NEXT_PUBLIC_REDIRECT_SIGN_IN || 'http://localhost:3000/'],
+                        redirectSignOut: [process.env.NEXT_PUBLIC_REDIRECT_SIGN_OUT || 'http://localhost:3000/'],
+                        responseType: 'code' as const,
+                    },
+                    email: true,
+                    username: false,
                 },
-                email: true,
-                username: false,
             },
         },
-    },
+    };
+
+    Amplify.configure(amplifyConfig);
 };
-
-Amplify.configure(amplifyConfig);
-
-export default amplifyConfig;
