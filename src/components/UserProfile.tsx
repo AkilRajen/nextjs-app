@@ -164,15 +164,30 @@ export default function UserProfile() {
 
     // Show user email and logout if authenticated
     return (
-        <div className="flex items-center space-x-3">
-            <div className="text-right">
-                <p className="text-sm font-medium text-gray-900 dark:text-white">
-                    {user.username}
-                </p>
+        <div className="flex items-center space-x-3 bg-white dark:bg-gray-800 rounded-lg shadow-sm border px-4 py-2">
+            <div className="flex items-center space-x-2">
+                {/* User Avatar */}
+                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                    <span className="text-white font-medium text-sm">
+                        {user.username.charAt(0).toUpperCase()}
+                    </span>
+                </div>
+
+                {/* User Email */}
+                <div className="text-right">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        {user.username}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Signed in
+                    </p>
+                </div>
             </div>
+
+            {/* Sign Out Button */}
             <button
                 onClick={handleSignOut}
-                className="px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                className="px-3 py-2 text-sm bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors border border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800 dark:hover:bg-red-900/30"
             >
                 Sign Out
             </button>
