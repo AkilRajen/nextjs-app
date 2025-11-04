@@ -65,7 +65,7 @@ export default function UserProfile() {
             console.error('Failed to log to server:', error);
         }
 
-        //window.location.href = oauthUrl;
+        window.location.href = oauthUrl;
     };
 
     const handleSignOut = async () => {
